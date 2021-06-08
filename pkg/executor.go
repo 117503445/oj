@@ -17,7 +17,7 @@ func ExecBuild(sourcePath string) bool {
 	return err == nil
 }
 
-func ExecRun(exePath string) {
+func ExecRun(exePath string, input string) {
 	// Create a new context and add a timeout to it
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel() // The cancel should be deferred so resources are cleaned up
@@ -25,11 +25,11 @@ func ExecRun(exePath string) {
 	// Create the command with our context
 	cmd := exec.CommandContext(ctx, exePath)
 
-	cmd.Stdin = strings.NewReader("1 2")
+	cmd.Stdin = strings.NewReader(input)
 
 	out, _ := cmd.Output()
 
-	text := GetStringWithLineLimit(string(out), 5)
+	text := GetStringWithLineLimit(string(out), 8)
 
 	if ctx.Err() == context.DeadlineExceeded {
 		fmt.Println("Command timed out")
