@@ -8,13 +8,21 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
-    - uses: actions/setup-go@v2
-      with:
-        go-version: '1.16.4'
-  
-    - run: go build -o oj_linux_amd64 ./cmd/oj
-    - run: CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o oj_windows_amd64 ./cmd/oj
-    - run: CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o oj_darwin_amd64 ./cmd/oj
+      - uses: actions/checkout@master
+      - uses: actions/setup-go@v2
+        with:
+          go-version: "1.16.4"
 
-    - run: ls
+      - run: go build -o oj_linux_amd64 ./cmd/oj
+      - run: CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o oj_windows_amd64 ./cmd/oj
+      - run: CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o oj_darwin_amd64 ./cmd/oj
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            oj_linux_amd64
+            oj_windows_amd64
+            oj_darwin_amd64
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
