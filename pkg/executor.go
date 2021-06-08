@@ -8,7 +8,16 @@ import (
 	"time"
 )
 
-func ExecBuild(exePath string) {
+func ExecBuild(sourcePath string) bool {
+	// todo different build arg
+	cmd := exec.Command("g++", sourcePath, "-o", "1.exe")
+
+	err := cmd.Run()
+
+	return err == nil
+}
+
+func ExecRun(exePath string) {
 	// Create a new context and add a timeout to it
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel() // The cancel should be deferred so resources are cleaned up
