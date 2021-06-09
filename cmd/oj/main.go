@@ -66,11 +66,13 @@ func main() {
 
 			for _, inputPath := range inputPathArray {
 				fmt.Printf("--- %s ---\n", inputPath)
-				input, _ := ioutil.ReadFile(inputPath)
-				pkg.ExecRun("./"+pkg.GetBinFileName(sourcePath), string(input))
+				pkg.ExecRun("./"+pkg.GetBinFileName(sourcePath), inputPath)
 				fmt.Printf("--- %s ---\n\n", inputPath)
 			}
-			os.Remove(pkg.GetBinFileName(sourcePath))
+			err := os.Remove(pkg.GetBinFileName(sourcePath))
+			if err != nil {
+				fmt.Println(err)
+			}
 		}
 
 		lastSourceContent = sourceContent

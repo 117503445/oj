@@ -28,6 +28,11 @@ func GetBinFileName(sourceFileName string) string {
 	}
 }
 
+func GetFileNameWithoutExt(full string) string {
+	strArray := strings.Split(full, ".")
+	return strings.Join(strArray[:len(strArray)-1], ".")
+}
+
 // https://stackoverflow.com/questions/22891644/how-can-i-clear-the-terminal-screen-in-go
 
 var clear map[string]func() //create a map for storing clear funcs
