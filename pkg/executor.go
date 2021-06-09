@@ -10,7 +10,7 @@ import (
 
 func ExecBuild(sourcePath string) bool {
 	// todo different build arg
-	cmd := exec.Command("g++", sourcePath, "-o", "1.exe")
+	cmd := exec.Command("g++", sourcePath, "-o", GetBinFileName(sourcePath))
 
 	err := cmd.Run()
 

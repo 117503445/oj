@@ -19,6 +19,15 @@ func GetStringWithLineLimit(text string, lineLimit int) string {
 	return text
 }
 
+func GetBinFileName(sourceFileName string) string {
+	switch runtime.GOOS {
+	case "windows":
+		return sourceFileName + ".exe"
+	default:
+		return sourceFileName + ".bin"
+	}
+}
+
 // https://stackoverflow.com/questions/22891644/how-can-i-clear-the-terminal-screen-in-go
 
 var clear map[string]func() //create a map for storing clear funcs
