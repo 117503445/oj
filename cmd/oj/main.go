@@ -6,11 +6,45 @@ import (
 	"io/ioutil"
 	"oj/pkg"
 	"os"
+	"strings"
 	"time"
 )
 
 func main() {
-	sourcePath := "main.cpp" // todo auto search
+	supportFileType := []string{".cpp"}
+
+	var sourcePathArray []string
+
+	files, _ := ioutil.ReadDir("./")
+	for _, f := range files {
+		for _, fileType := range supportFileType {
+			if strings.HasSuffix(f.Name(), fileType) {
+				sourcePathArray = append(sourcePathArray, f.Name())
+			}
+		}
+
+	}
+
+	sourcePath := ""
+
+	switch len(sourcePathArray) {
+	case 0:
+		fmt.Println("No Source Code found in the dir.")
+		return
+	case 1:
+		sourcePath = sourcePathArray[0]
+	default:
+		for i, file := range sourcePathArray {
+			fmt.Printf("%v %s; ", i, file)
+		}
+		fmt.Println("\nplease input the index of source filename")
+
+		index := 0
+		fmt.Scanf("%d", &index)
+
+		sourcePath = sourcePathArray[index]
+		pkg.Clear()
+	}
 
 	var lastSourceContent []byte
 

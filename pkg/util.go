@@ -1,6 +1,7 @@
 package pkg
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 	"runtime"
@@ -34,6 +35,7 @@ func init() {
 		cmd.Stdout = os.Stdout
 		cmd.Run()
 	}
+	//todo mac
 }
 
 func Clear() {
@@ -41,6 +43,6 @@ func Clear() {
 	if ok {                          //if we defined a clear func for that platform:
 		value() //we execute it
 	} else { //unsupported platform
-		panic("Your platform is unsupported! I can't clear terminal screen :(")
+		panic(fmt.Sprintf("Your platform [%s] is unsupported! I can't clear terminal screen :(", runtime.GOOS))
 	}
 }
