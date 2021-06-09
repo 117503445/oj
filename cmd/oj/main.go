@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"oj/pkg"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 )
@@ -61,7 +62,7 @@ func main() {
 				continue
 			}
 
-			inputPathArray := []string{"1.txt", "2.txt"} // todo load from disk
+			inputPathArray, _ := filepath.Glob("*.in")
 
 			for _, inputPath := range inputPathArray {
 				fmt.Printf("--- %s ---\n", inputPath)
