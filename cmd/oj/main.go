@@ -57,21 +57,20 @@ func main() {
 			pkg.Clear()
 
 			isBuildSuccess := pkg.ExecBuild(sourcePath)
-			if !isBuildSuccess {
+			if isBuildSuccess {
+				inputPathArray, _ := filepath.Glob("*.in")
+
+				for _, inputPath := range inputPathArray {
+					fmt.Printf("--- %s ---\n", inputPath)
+					pkg.ExecRun("./"+pkg.GetBinFileName(sourcePath), inputPath)
+					fmt.Printf("--- %s ---\n\n", inputPath)
+				}
+				err := os.Remove(pkg.GetBinFileName(sourcePath))
+				if err != nil {
+					fmt.Println(err)
+				}
+			} else {
 				fmt.Println("build fail")
-				continue
-			}
-
-			inputPathArray, _ := filepath.Glob("*.in")
-
-			for _, inputPath := range inputPathArray {
-				fmt.Printf("--- %s ---\n", inputPath)
-				pkg.ExecRun("./"+pkg.GetBinFileName(sourcePath), inputPath)
-				fmt.Printf("--- %s ---\n\n", inputPath)
-			}
-			err := os.Remove(pkg.GetBinFileName(sourcePath))
-			if err != nil {
-				fmt.Println(err)
 			}
 		}
 
