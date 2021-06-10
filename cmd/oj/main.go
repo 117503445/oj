@@ -11,6 +11,32 @@ import (
 	"time"
 )
 
+func isFileUpdate(sourcePath string, lastSourceContent []byte, lastInput map[string][]byte) bool {
+	sourceContent, _ := ioutil.ReadFile(sourcePath)
+	if !bytes.Equal(lastSourceContent, sourceContent) {
+		return true
+	}
+
+	for inputPath, lastInputContent := range lastInput {
+		inputContent, _ := ioutil.ReadFile(inputPath)
+		if !bytes.Equal(inputContent, lastInputContent) {
+			return true
+		}
+	}
+	return false
+}
+
+func loadCurrentFile(sourcePath string) ([]byte, map[string][]byte) {
+	sourceContent, _ := ioutil.ReadFile(sourcePath)
+	lastInput := make(map[string][]byte)
+	inputPathArray, _ := filepath.Glob("*.in")
+	for _, inputPath := range inputPathArray {
+		inputContent, _ := ioutil.ReadFile(inputPath)
+		lastInput[inputPath] = inputContent
+	}
+	return sourceContent, lastInput
+}
+
 func main() {
 	supportFileType := []string{".cpp"}
 
@@ -48,10 +74,11 @@ func main() {
 	}
 
 	var lastSourceContent []byte
+	var lastInput map[string][]byte
 
 	for true {
-		sourceContent, _ := ioutil.ReadFile(sourcePath)
-		if !bytes.Equal(lastSourceContent, sourceContent) {
+
+		if isFileUpdate(sourcePath, lastSourceContent, lastInput) {
 			// file change
 
 			pkg.Clear()
@@ -72,9 +99,9 @@ func main() {
 			} else {
 				fmt.Println("build fail")
 			}
+			lastSourceContent, lastInput = loadCurrentFile(sourcePath)
 		}
 
-		lastSourceContent = sourceContent
 		time.Sleep(time.Second)
 	}
 
