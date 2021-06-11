@@ -37,10 +37,10 @@ func ExecRun(exePath string, inputPath string) {
 		fmt.Println("Command timed out")
 	}
 
-	text := GetStringWithLineLimit(string(out), 8)
+	text := GetStringWithLineLimit(string(out), 12)
 	fmt.Println(text)
 
-	text = GetStringWithLineLimit(string(out), 100)
+	text = GetStringWithLineLimit(string(out), 500)
 	err := ioutil.WriteFile(GetFileNameWithoutExt(inputPath)+".out", []byte(text), 0644)
 	if err != nil {
 		fmt.Println(err)
