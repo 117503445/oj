@@ -22,9 +22,9 @@ func GetStringWithLineLimit(text string, lineLimit int) string {
 func GetBinFileName(sourceFileName string) string {
 	switch runtime.GOOS {
 	case "windows":
-		return sourceFileName + ".exe"
+		return "temp" + ".exe"
 	default:
-		return sourceFileName + ".bin"
+		return "temp" + ".bin"
 	}
 }
 
