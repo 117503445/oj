@@ -66,8 +66,9 @@ func exec(ctx context.Context, sourcePath string) {
 	if isBuildSuccess {
 		inputPathArray, _ := filepath.Glob("*.in")
 
-		for _, inputPath := range inputPathArray {
+		channels := make([]chan string, 0)
 
+		for _, inputPath := range inputPathArray {
 			select {
 			case <-ctx.Done():
 				fmt.Println("exec cancel")
@@ -75,11 +76,22 @@ func exec(ctx context.Context, sourcePath string) {
 			default:
 
 			}
+			channel := make(chan string)
+			channels = append(channels, channel)
 
-			fmt.Printf("--- %s ---\n", inputPath)
-			pkg.ExecRun("./"+pkg.GetBinFileName(sourcePath), inputPath)
-			fmt.Printf("--- %s ---\n\n", inputPath)
+			go pkg.ExecRun(channel, "./"+pkg.GetBinFileName(sourcePath), inputPath)
+
 		}
+
+		for i, channel := range channels {
+			inputPath := inputPathArray[i]
+			output := ""
+			output += fmt.Sprintf("--- %s ---\n", inputPath)
+			output += <-channel
+			output += fmt.Sprintf("--- %s ---\n\n", inputPath)
+			fmt.Println(output)
+		}
+
 		err := os.Remove(pkg.GetBinFileName(sourcePath))
 		if err != nil {
 			fmt.Println(err)

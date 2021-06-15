@@ -2,7 +2,6 @@ package pkg
 
 import (
 	"context"
-	"fmt"
 	"io/ioutil"
 	"os/exec"
 	"strings"
@@ -18,15 +17,15 @@ func ExecBuild(sourcePath string) bool {
 	return err == nil
 }
 
-func ExecRun(exePath string, inputPath string) {
+func ExecRun(outChan chan string, exePath string, inputPath string) {
+
+	output := ""
 
 	input, _ := ioutil.ReadFile(inputPath)
 
-	// Create a new context and add a timeout to it
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
-	defer cancel() // The cancel should be deferred so resources are cleaned up
+	defer cancel()
 
-	// Create the command with our context
 	cmd := exec.CommandContext(ctx, exePath)
 
 	cmd.Stdin = strings.NewReader(string(input))
@@ -34,15 +33,17 @@ func ExecRun(exePath string, inputPath string) {
 	out, _ := cmd.Output()
 
 	if ctx.Err() == context.DeadlineExceeded {
-		fmt.Println("Command timed out")
+		output += "Command timed out\n"
 	}
 
 	text := GetStringWithLineLimit(string(out), 12)
-	fmt.Println(text)
+	output += text + "\n"
 
 	text = GetStringWithLineLimit(string(out), 500)
 	err := ioutil.WriteFile(GetFileNameWithoutExt(inputPath)+".out", []byte(text), 0644)
 	if err != nil {
-		fmt.Println(err)
+		output += err.Error() + "\n"
 	}
+
+	outChan <- output
 }
