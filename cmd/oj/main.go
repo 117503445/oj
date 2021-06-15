@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"github.com/fsnotify/fsnotify"
 	"io/ioutil"
@@ -48,14 +49,33 @@ func getSourcePath() string {
 	return sourcePath
 }
 
-func exec(sourcePath string) {
+func exec(ctx context.Context, sourcePath string) {
 	pkg.Clear()
+	var isBuildSuccess bool
 
-	isBuildSuccess := pkg.ExecBuild(sourcePath)
+	isBuildSuccess = pkg.ExecBuild(sourcePath)
+
+	select {
+	case <-ctx.Done():
+		fmt.Println("exec cancel")
+		return
+	default:
+
+	}
+
 	if isBuildSuccess {
 		inputPathArray, _ := filepath.Glob("*.in")
 
 		for _, inputPath := range inputPathArray {
+
+			select {
+			case <-ctx.Done():
+				fmt.Println("exec cancel")
+				return
+			default:
+
+			}
+
 			fmt.Printf("--- %s ---\n", inputPath)
 			pkg.ExecRun("./"+pkg.GetBinFileName(sourcePath), inputPath)
 			fmt.Printf("--- %s ---\n\n", inputPath)
@@ -77,7 +97,8 @@ func main() {
 		return
 	}
 
-	exec(sourcePath)
+	ctx, _ := context.WithCancel(context.Background())
+	exec(ctx, sourcePath)
 
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
@@ -86,6 +107,9 @@ func main() {
 	defer watcher.Close()
 
 	done := make(chan bool)
+
+	var lastCancel context.CancelFunc
+
 	go func() {
 		for {
 			select {
@@ -99,7 +123,13 @@ func main() {
 				//fmt.Println(strings.Contains(event.Name, sourcePath))
 				//fmt.Println()
 				if (strings.Contains(event.Name, sourcePath)) || strings.HasSuffix(event.Name, ".in") {
-					exec(sourcePath)
+					if lastCancel != nil {
+						lastCancel()
+					}
+
+					ctx, cancel := context.WithCancel(context.Background())
+					lastCancel = cancel
+					exec(ctx, sourcePath)
 				}
 
 			case err, ok := <-watcher.Errors:
