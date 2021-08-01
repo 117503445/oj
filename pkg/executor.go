@@ -2,22 +2,31 @@ package pkg
 
 import (
 	"context"
+	"fmt"
+	"github.com/spf13/viper"
 	"io/ioutil"
 	"os/exec"
 	"strings"
 	"time"
 )
 
-func ExecBuild(sourcePath string) bool {
-	// todo different build arg
-	cmd := exec.Command("g++", sourcePath, "-o", GetBinFileName(sourcePath))
+// ExecBuild 执行编译，成功返回 "", 失败返回错误字符串
+func ExecBuild(sourcePath string, language string) (success bool, output string) {
+	key := fmt.Sprintf("languages.%v.build", language)
+	command := BuildCommand(viper.GetString(key), sourcePath)
+	//glog.Line().Debug(command)
+	name, args := SplitCommand(command)
+	cmd := exec.Command(name, args...)
 
-	err := cmd.Run()
+	out, err := cmd.Output()
+	if err != nil {
+		//glog.Line().Error(err)
+	}
 
-	return err == nil
+	return err == nil, string(out)
 }
 
-func ExecRun(outChan chan string, exePath string, inputPath string) {
+func ExecRun(outChan chan string, sourcePath string, language string, inputPath string) {
 
 	output := ""
 
@@ -26,7 +35,10 @@ func ExecRun(outChan chan string, exePath string, inputPath string) {
 	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 	defer cancel()
 
-	cmd := exec.CommandContext(ctx, exePath)
+	key := fmt.Sprintf("languages.%v.run", language)
+	command := BuildCommand(viper.GetString(key), sourcePath)
+
+	cmd := exec.CommandContext(ctx, command)
 
 	cmd.Stdin = strings.NewReader(string(input))
 

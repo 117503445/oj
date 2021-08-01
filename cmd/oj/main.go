@@ -13,54 +13,67 @@ import (
 	"strings"
 )
 
-func getSourcePath() string {
+// 通过用户输入,获得 源代码 的 路径 language
+func getCodeInfo() (string, string) {
 	mapLanguageExtension := make(map[string]string)
 
 	for k, v := range viper.GetStringMap("languages") {
 		mapLanguageExtension[k] = v.(map[string]interface{})["extension"].(string)
 	}
 
-
-	var sourcePathArray []string
+	mapPathLanguage := make(map[string]string)
 
 	files, _ := ioutil.ReadDir("./")
+
 	for _, f := range files {
 		for language, extension := range mapLanguageExtension {
 			if strings.HasSuffix(f.Name(), extension) {
-
-				sourcePathArray = append(sourcePathArray, f.Name())
+				mapPathLanguage[f.Name()] = language
 			}
 		}
-
 	}
 
-	sourcePath := ""
-
-	switch len(sourcePathArray) {
+	switch len(mapPathLanguage) {
 	case 0:
-		return ""
+		return "", ""
 	case 1:
-		sourcePath = sourcePathArray[0]
+		for k, v := range mapPathLanguage {
+			return k, v
+		}
+
+		panic("len(mapPathLanguage) == 1, but can't get items.")
 	default:
-		for i, file := range sourcePathArray {
-			fmt.Printf("%v %s; ", i, file)
+		i := 0
+		for path := range mapPathLanguage {
+			fmt.Printf("%v %s; ", i, path)
+			i++
 		}
 		fmt.Println("\nplease input the index of source filename")
 
 		index := 0
-		fmt.Scanf("%d", &index)
+		_, err := fmt.Scanf("%d", &index)
+		if err != nil {
+			panic(err)
+		}
 
-		sourcePath = sourcePathArray[index]
 		pkg.Clear()
+
+		i = 0
+		for path, language := range mapPathLanguage {
+			if i == index {
+				return path, language
+			}
+			i++
+		}
+		panic("file not found in list")
 	}
-	return sourcePath
+
 }
 
-func exec(ctx context.Context, sourcePath string) {
+func exec(ctx context.Context, sourcePath string, language string) {
 	pkg.Clear()
-	var isBuildSuccess bool
 
-	isBuildSuccess = pkg.ExecBuild(sourcePath)
+	buildSuccess, buildOutput := pkg.ExecBuild(sourcePath, language)
 
 	select {
 	case <-ctx.Done():
@@ -70,7 +83,7 @@ func exec(ctx context.Context, sourcePath string) {
 
 	}
 
-	if isBuildSuccess {
+	if buildSuccess {
 		inputPathArray, _ := filepath.Glob("*.in")
 
 		channels := make([]chan string, 0)
@@ -86,7 +99,7 @@ func exec(ctx context.Context, sourcePath string) {
 			channel := make(chan string)
 			channels = append(channels, channel)
 
-			go pkg.ExecRun(channel, "./"+pkg.GetBinFileName(sourcePath), inputPath)
+			go pkg.ExecRun(channel, sourcePath, language, inputPath)
 
 		}
 
@@ -104,20 +117,20 @@ func exec(ctx context.Context, sourcePath string) {
 			fmt.Println(err)
 		}
 	} else {
-		fmt.Println("build fail")
+		fmt.Println("Build Failed\n" + buildOutput)
 	}
 }
 
 func main() {
 
-	sourcePath := getSourcePath()
+	sourcePath, language := getCodeInfo()
 	if sourcePath == "" {
 		fmt.Println("No Source Code found in the dir.")
 		return
 	}
 
 	ctx, _ := context.WithCancel(context.Background())
-	exec(ctx, sourcePath)
+	exec(ctx, sourcePath, language)
 
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
@@ -148,7 +161,7 @@ func main() {
 
 					ctx, cancel := context.WithCancel(context.Background())
 					lastCancel = cancel
-					exec(ctx, sourcePath)
+					exec(ctx, sourcePath, language)
 				}
 
 			case err, ok := <-watcher.Errors:
