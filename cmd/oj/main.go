@@ -73,52 +73,62 @@ func getCodeInfo() (string, string) {
 func exec(ctx context.Context, sourcePath string, language string) {
 	pkg.Clear()
 
-	buildSuccess, buildOutput := pkg.ExecBuild(sourcePath, language)
+	key := fmt.Sprintf("languages.%v.build", language)
+	needCompile := viper.Get(key) != nil // 存在 languages.compile 时，才进行 compile
 
-	select {
-	case <-ctx.Done():
-		fmt.Println("exec cancel")
-		return
-	default:
+	if needCompile {
+		// Build
+		buildSuccess, buildOutput := pkg.ExecBuild(sourcePath, language)
+
+		select {
+		case <-ctx.Done():
+			fmt.Println("exec cancel")
+			return
+		default:
+
+		}
+		if !buildSuccess {
+			fmt.Println("Build Failed\n" + buildOutput)
+			return
+		}
+	}
+
+	inputPathArray, _ := filepath.Glob("*.in")
+
+	channels := make([]chan string, 0)
+
+	for _, inputPath := range inputPathArray {
+		select {
+		case <-ctx.Done():
+			fmt.Println("exec cancel")
+			return
+		default:
+
+		}
+		channel := make(chan string)
+		channels = append(channels, channel)
+
+		go pkg.ExecRun(channel, sourcePath, language, inputPath)
 
 	}
 
-	if buildSuccess {
-		inputPathArray, _ := filepath.Glob("*.in")
+	for i, channel := range channels {
+		inputPath := inputPathArray[i]
+		output := ""
+		output += fmt.Sprintf("--- %s ---\n", inputPath)
+		output += <-channel
+		output += fmt.Sprintf("--- %s ---\n\n", inputPath)
+		fmt.Println(output)
+	}
 
-		channels := make([]chan string, 0)
-
-		for _, inputPath := range inputPathArray {
-			select {
-			case <-ctx.Done():
-				fmt.Println("exec cancel")
-				return
-			default:
-
-			}
-			channel := make(chan string)
-			channels = append(channels, channel)
-
-			go pkg.ExecRun(channel, sourcePath, language, inputPath)
-
-		}
-
-		for i, channel := range channels {
-			inputPath := inputPathArray[i]
-			output := ""
-			output += fmt.Sprintf("--- %s ---\n", inputPath)
-			output += <-channel
-			output += fmt.Sprintf("--- %s ---\n\n", inputPath)
-			fmt.Println(output)
-		}
-
+	if needCompile {
+		// 删除可执行文件
 		err := os.Remove(pkg.GetBinFileName(sourcePath))
 		if err != nil {
 			fmt.Println(err)
 		}
-	} else {
-		fmt.Println("Build Failed\n" + buildOutput)
 	}
+
 }
 
 func main() {

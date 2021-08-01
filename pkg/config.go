@@ -24,6 +24,8 @@ func init() {
 	viper.SetConfigName("config") // name of config file (without extension)
 	viper.SetConfigType("json")   // REQUIRED if the config file does not have the extension in the name
 
+	// TODO load config in file
+
 	err := viper.ReadConfig(strings.NewReader(defaultConfJson))
 	if err != nil {
 		log.Panic(err)

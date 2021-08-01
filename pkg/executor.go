@@ -3,6 +3,7 @@ package pkg
 import (
 	"context"
 	"fmt"
+	"github.com/gogf/gf/os/glog"
 	"github.com/spf13/viper"
 	"io/ioutil"
 	"os/exec"
@@ -12,6 +13,7 @@ import (
 
 // ExecBuild 执行编译，成功返回 "", 失败返回错误字符串
 func ExecBuild(sourcePath string, language string) (success bool, output string) {
+	//TODO rename to compile
 	key := fmt.Sprintf("languages.%v.build", language)
 	command := BuildCommand(viper.GetString(key), sourcePath)
 	//glog.Line().Debug(command)
@@ -37,9 +39,11 @@ func ExecRun(outChan chan string, sourcePath string, language string, inputPath 
 
 	key := fmt.Sprintf("languages.%v.run", language)
 	command := BuildCommand(viper.GetString(key), sourcePath)
+	name, args := SplitCommand(command)
 
-	cmd := exec.CommandContext(ctx, command)
+	cmd := exec.CommandContext(ctx, name, args...)
 
+	glog.Line().Debug(input)
 	cmd.Stdin = strings.NewReader(string(input))
 
 	out, _ := cmd.Output()
