@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/fsnotify/fsnotify"
+	"github.com/spf13/viper"
 	"io/ioutil"
 	"log"
 	"oj/pkg"
@@ -13,14 +14,20 @@ import (
 )
 
 func getSourcePath() string {
-	supportFileType := []string{".cpp"}
+	mapLanguageExtension := make(map[string]string)
+
+	for k, v := range viper.GetStringMap("languages") {
+		mapLanguageExtension[k] = v.(map[string]interface{})["extension"].(string)
+	}
+
 
 	var sourcePathArray []string
 
 	files, _ := ioutil.ReadDir("./")
 	for _, f := range files {
-		for _, fileType := range supportFileType {
-			if strings.HasSuffix(f.Name(), fileType) {
+		for language, extension := range mapLanguageExtension {
+			if strings.HasSuffix(f.Name(), extension) {
+
 				sourcePathArray = append(sourcePathArray, f.Name())
 			}
 		}
