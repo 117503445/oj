@@ -3,7 +3,6 @@ package pkg
 import (
 	"context"
 	"fmt"
-	"github.com/gogf/gf/os/glog"
 	"github.com/spf13/viper"
 	"io/ioutil"
 	"os/exec"
@@ -43,7 +42,7 @@ func ExecRun(outChan chan string, sourcePath string, language string, inputPath 
 
 	cmd := exec.CommandContext(ctx, name, args...)
 
-	glog.Line().Debug(input)
+	//glog.Line().Debug(input)
 	cmd.Stdin = strings.NewReader(string(input))
 
 	out, _ := cmd.Output()
