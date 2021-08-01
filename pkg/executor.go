@@ -55,7 +55,7 @@ func ExecRun(outChan chan string, sourcePath string, language string, inputPath 
 	output += text + "\n"
 
 	text = GetStringWithLineLimit(string(out), 500)
-	err := ioutil.WriteFile(GetFileNameWithoutExt(inputPath)+".out", []byte(text), 0644)
+	err := ioutil.WriteFile(GetFileNameWithoutExt(inputPath)+"."+GetFileNameWithoutExt(sourcePath)+".out", []byte(text), 0644)
 	if err != nil {
 		output += err.Error() + "\n"
 	}
