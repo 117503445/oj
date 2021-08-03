@@ -51,10 +51,10 @@ func ExecRun(outChan chan string, sourcePath string, language string, inputPath 
 		output += "Command timed out\n"
 	}
 
-	text := GetStringWithLineLimit(string(out), 12)
+	text := GetStringWithLineLimit(string(out), viper.GetInt("executor.outputLimit.terminal"))
 	output += text + "\n"
 
-	text = GetStringWithLineLimit(string(out), 500)
+	text = GetStringWithLineLimit(string(out), viper.GetInt("executor.outputLimit.file"))
 	err := ioutil.WriteFile(GetFileNameWithoutExt(inputPath)+"."+GetFileNameWithoutExt(sourcePath)+".out", []byte(text), 0644)
 	if err != nil {
 		output += err.Error() + "\n"

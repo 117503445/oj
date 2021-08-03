@@ -17,7 +17,13 @@ const defaultConfJson = `{
             "build": "g++ ${codePath} -o ${binPath}",
             "run": "./${binPath}"
         }
-    }
+    },
+	"executor":{
+		"outputLimit":{
+			"terminal": 12,
+			"file": 500
+		}
+	}
 }`
 
 func init() {

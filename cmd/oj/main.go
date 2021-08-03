@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/fsnotify/fsnotify"
+	"github.com/gogf/gf/os/glog"
+	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"io/ioutil"
 	"log"
@@ -132,6 +134,15 @@ func exec(ctx context.Context, sourcePath string, language string) {
 }
 
 func main() {
+	pflag.Int("executor.outputLimit.terminal", 12, "output lines limit in terminal")
+	pflag.Int("executor.outputLimit.file", 500, "output lines limit in file")
+
+	pflag.Parse()
+	err := viper.BindPFlags(pflag.CommandLine)
+	if err != nil {
+		glog.Line().Error(err)
+		return
+	}
 
 	sourcePath, language := getCodeInfo()
 	if sourcePath == "" {
