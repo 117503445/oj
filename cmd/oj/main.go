@@ -45,11 +45,15 @@ func getCodeInfo() (string, string) {
 
 		panic("len(mapPathLanguage) == 1, but can't get items.")
 	default:
-		i := 0
-		for path := range mapPathLanguage {
-			fmt.Printf("%v %s; ", i, path)
-			i++
+		paths := make([]string, 0, len(mapPathLanguage))
+		for k := range mapPathLanguage {
+			paths = append(paths, k)
 		}
+
+		for i, path := range paths {
+			fmt.Printf("%v %s; ", i, path)
+		}
+
 		fmt.Println("\nplease input the index of source filename")
 
 		index := 0
@@ -60,14 +64,13 @@ func getCodeInfo() (string, string) {
 
 		pkg.Clear()
 
-		i = 0
-		for path, language := range mapPathLanguage {
-			if i == index {
-				return path, language
-			}
-			i++
+		if index < 0 || index >= len(paths) {
+			panic("illegal index")
+		} else {
+			path := paths[index]
+			language := mapPathLanguage[path]
+			return path, language
 		}
-		panic("file not found in list")
 	}
 
 }
