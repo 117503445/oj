@@ -173,12 +173,7 @@ func main() {
 				if !ok {
 					return
 				}
-				//fmt.Println(event.String())
-				//fmt.Println(event.Name)
-				//fmt.Println(sourcePath)
-				//fmt.Println(strings.Contains(event.Name, sourcePath))
-				//fmt.Println()
-				if (strings.Contains(event.Name, sourcePath)) || strings.HasSuffix(event.Name, ".in") {
+				if strings.HasSuffix(event.Name, sourcePath) || strings.HasSuffix(event.Name, ".in") {
 					if lastCancel != nil {
 						lastCancel()
 					}
