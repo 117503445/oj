@@ -57,7 +57,7 @@ We recommend that you use vscode and enable auto-save.
 
 3. run `oj` in `~/mydir`
 
-4. When `main.cpp` changes, `oj` will automatically compile `main.cpp`, redirect 1.in and 2.in as test cases from standard input to a binary file, and save the output to 1.main.out and 2.main.out .
+4. When `main.cpp` changes, `oj` will automatically compile `main.cpp`, redirect `1.in` and `2.in` as test cases from standard input to a binary file, and save the output to `1.main.out` and `2.main.out` .
 
 ### Dev
 
