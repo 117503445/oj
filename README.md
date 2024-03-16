@@ -61,12 +61,10 @@ We recommend that you use vscode and enable auto-save.
 
 ### Dev
 
-install golang v1.16
+install golang v1.22
 
 ```sh
-cd ./cmd/oj
-go build
-go run .
+go run /workspace/cmd/oj
 ```
 
 There are some test code in ./assets dir.

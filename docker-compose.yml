@@ -1,0 +1,11 @@
+version: '3.9'
+services:
+  oj-dev:
+    build:
+      dockerfile: Dockerfile_dev
+    container_name: oj-dev
+
+    volumes:
+        - './:/workspace'
+    stdin_open: true
+    tty: true
