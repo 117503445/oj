@@ -4,10 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/fsnotify/fsnotify"
-	"github.com/gogf/gf/os/glog"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
-	"io/ioutil"
 	"log"
 	"oj/pkg"
 	"os"
@@ -25,7 +23,7 @@ func getCodeInfo() (string, string) {
 
 	mapPathLanguage := make(map[string]string)
 
-	files, _ := ioutil.ReadDir("./")
+	files, _ := os.ReadDir("./")
 
 	for _, f := range files {
 		for language, extension := range mapLanguageExtension {
@@ -143,7 +141,7 @@ func main() {
 	pflag.Parse()
 	err := viper.BindPFlags(pflag.CommandLine)
 	if err != nil {
-		glog.Line().Error(err)
+		fmt.Println(err)
 		return
 	}
 
