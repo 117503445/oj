@@ -1,11 +1,15 @@
-version: '3.9'
+# docker-compose.yml
+
 services:
   oj-dev:
     build:
-      dockerfile: Dockerfile_dev
-    container_name: oj-dev
-
+      context: ./
+      dockerfile: Dockerfile.dev
     volumes:
-        - './:/workspace'
+        - ./:/workspace
+        - oj-dev-vsc:/root/.vscode-server
     stdin_open: true
     tty: true
+
+volumes:
+  oj-dev-vsc:

@@ -13,7 +13,7 @@ import (
 	"strings"
 )
 
-// 通过用户输入,获得 源代码 的 路径 language
+// 通过用户输入，获得 源代码 的 路径 language
 func getCodeInfo() (string, string) {
 	mapLanguageExtension := make(map[string]string)
 
