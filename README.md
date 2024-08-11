@@ -10,7 +10,7 @@ When solving algorithmic problems, you need to continuously compile and input te
 
 ### Installation
 
-1. According to your own system, download the latest binary file from <https://github.com/117503445/oj/releases/latest> and add folder to the system `path` environment variable.
+1. According to your own system, download the latest binary file from <https://github.com/117503445/oj/releases/latest> and add folder to the system `path` environment variable. Or run `go install github.com/117503445/oj@latest`.
 
 2. input `oj` in terminal, show `No Source Code found in the dir.`.
 

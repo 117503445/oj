@@ -12,11 +12,11 @@ jobs:
       - uses: actions/checkout@master
       - uses: actions/setup-go@v2
         with:
-          go-version: "1.22.1"
+          go-version: "1.22.6"
 
-      - run: go build -o oj_linux_amd64 ./cmd/oj
-      - run: CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o oj_windows_amd64.exe ./cmd/oj
-      - run: CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o oj_darwin_amd64 ./cmd/oj
+      - run: go build -o oj_linux_amd64 .
+      - run: CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o oj_windows_amd64.exe .
+      - run: CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o oj_darwin_amd64 .
 
       - name: Release
         uses: softprops/action-gh-release@v1
