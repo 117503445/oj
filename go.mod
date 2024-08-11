@@ -1,4 +1,4 @@
-module oj
+module github.com/117503445/oj
 
 go 1.22.6
 
